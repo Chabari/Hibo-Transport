@@ -1,0 +1,18 @@
+[
+ {
+  "action": "Generate Delivery note",
+  "allow_self_approval": 1,
+  "allowed": "All",
+  "condition": null,
+  "docstatus": 0,
+  "doctype": "Workflow Transition",
+  "modified": "2025-02-10 07:46:14.950983",
+  "name": "ubf5tcqejf",
+  "next_state": "Processed",
+  "parent": "Release Instruction",
+  "parentfield": "transitions",
+  "parenttype": "Workflow",
+  "state": "Pending",
+  "workflow_builder_id": null
+ }
+]

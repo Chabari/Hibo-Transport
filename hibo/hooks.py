@@ -122,13 +122,63 @@ app_license = "mit"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+
+    "Purchase Order": {
+        "before_submit": "hibo.api.create_order",
+    },
+    "Delivery Note": {
+        "before_submit": "hibo.api.create_s_p_invoice",
+    },
+    "Sales Invoice": {
+        "before_submit": "hibo.api.create_c_i_invoice",
+    },
+    "Purchase Receipt": {
+        "before_submit": "hibo.api.create_d_note",
+    }
+}
+
+
+fixtures = [
+
+    {
+        "doctype": "Workflow State"
+    },
+    {
+        "doctype": "Workflow Transition"
+    },
+    {
+        "doctype": "Workflow"
+    },
+    {
+        "doctype": "Custom Field",
+        "filters": [
+            [
+                "name",
+                "in",
+                (
+                    "Purchase Order-custom_target_company",
+                    "Vehicle-custom_trailer_number",
+                    "Delivery Note-custom_vehicle",
+                    "Delivery Note-custom_trailer_no",
+                    "Purchase Invoice-custom_delivery_note_number",
+                    "Purchase Invoice-custom_linked_sales_invoice",
+                    "Purchase Receipt-custom_linked_sales_invoice",
+                    "Purchase Receipt Item-custom_offloaded_qty20",
+                    "Purchase Receipt Item-custom_loaded_quantity",
+                    "Purchase Receipt Item-custom_shortage",
+                    "Purchase Receipt Item-custom_allowable_loss",
+                    "Purchase Receipt Item-custom_chargeable_loss",
+                    "Release Instruction-workflow_state",
+                    "Delivery Note-custom_release_instruction"
+                    "Delivery Note Item-custom_loaded_qty"
+                ),
+            ]
+        ],
+    },
+    
+]
+
 
 # Scheduled Tasks
 # ---------------

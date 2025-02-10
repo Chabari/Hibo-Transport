@@ -1,0 +1,113 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-02-10 06:13:47.450019",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "release_date",
+  "truck_reg",
+  "capacity",
+  "offload_depot",
+  "selling_price",
+  "column_break_bxpz",
+  "driver",
+  "trailer_reg",
+  "transporter",
+  "loaded_capacity20",
+  "batch_number"
+ ],
+ "fields": [
+  {
+   "fieldname": "release_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Release Date"
+  },
+  {
+   "fieldname": "truck_reg",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Truck Reg",
+   "options": "Vehicle",
+   "reqd": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "capacity",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Capacity",
+   "reqd": 1
+  },
+  {
+   "fieldname": "offload_depot",
+   "fieldtype": "Link",
+   "label": "Offload Depot",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "column_break_bxpz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "driver",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Driver",
+   "options": "Driver",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "truck_reg.custom_trailer_number",
+   "fieldname": "trailer_reg",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Trailer Reg",
+   "reqd": 1
+  },
+  {
+   "fieldname": "transporter",
+   "fieldtype": "Link",
+   "label": "Transporter",
+   "options": "Supplier"
+  },
+  {
+   "columns": 1,
+   "fieldname": "loaded_capacity20",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Loaded@20"
+  },
+  {
+   "fieldname": "selling_price",
+   "fieldtype": "Float",
+   "label": "Selling Price"
+  },
+  {
+   "fieldname": "batch_number",
+   "fieldtype": "Link",
+   "label": "Batch number",
+   "options": "Batch"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-02-10 11:52:36.775522",
+ "modified_by": "Administrator",
+ "module": "Hibo Customizations",
+ "name": "Release Instruction Details",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
