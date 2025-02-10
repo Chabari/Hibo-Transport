@@ -4,7 +4,6 @@ from frappe.utils import flt, cint, getdate, get_datetime, nowdate, nowtime, add
 
 from frappe.contacts.doctype.address.address import get_company_address
 from frappe.model.utils import get_fetch_values
-from erpnext.stock.doctype.serial_no.serial_no import get_delivery_note_serial_no
 from frappe.model.mapper import get_mapped_doc
 from frappe import _
 
@@ -423,4 +422,19 @@ def make_sales_invoice(source_name, target_doc=None, args=None):
 		doc.set_payment_schedule()
 
 	return doc
+
+
+def get_delivery_note_serial_no(item_code, qty, delivery_note):
+	serial_nos = ""
+	dn_serial_nos = frappe.db.sql_list(
+		f""" select name from `tabSerial No`
+		where item_code = %(item_code)s and delivery_document_no = %(delivery_note)s
+		and sales_invoice is null limit {cint(qty)}""",
+		{"item_code": item_code, "delivery_note": delivery_note},
+	)
+
+	if dn_serial_nos and len(dn_serial_nos) > 0:
+		serial_nos = "\n".join(dn_serial_nos)
+
+	return serial_nos
 
