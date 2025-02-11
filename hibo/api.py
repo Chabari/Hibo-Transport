@@ -145,11 +145,12 @@ def create_c_i_invoice(doc, method):
         p_items = []
         pr_items = []
         
-        _delivery_note = frappe.db.get_value('Delivery Note', {'po_no': doc.po_no}, ['name'], as_dict=1) 
+        _delivery_note = None
         
         transport_setting = frappe.get_all("Transport Setting", fields=["allowable_loss"], limit=1)
         
         for itm in doc.items:
+            _delivery_note = itm.delivery_note
             delivery_note_item = frappe.get_doc("Delivery Note Item", itm.dn_detail)
             p_items.append(frappe._dict({
                 'item_code': itm.item_code,
@@ -183,32 +184,38 @@ def create_c_i_invoice(doc, method):
                 'serial_no': delivery_note_item.serial_no,
             }))
             
-        purchase_receipt.supplier_delivery_note = _delivery_note.name
+        purchase_receipt.supplier_delivery_note = _delivery_note
         
         purchase_invoice.set("items", p_items)
-        purchase_receipt.set("items", pr_items)
-        
         purchase_invoice.flags.ignore_permissions = True
-        purchase_receipt.flags.ignore_permissions = True
         purchase_invoice.set_missing_values()
+        purchase_invoice.save(ignore_permissions=True)
+        
+        purchase_receipt.set("items", pr_items)
+        purchase_receipt.flags.ignore_permissions = True
         purchase_receipt.set_missing_values()
         purchase_receipt.save(ignore_permissions=True)
-        purchase_invoice.save(ignore_permissions=True)
         
         frappe.flags.ignore_account_permission = True
         purchase_invoice.submit()
 
+
 def create_d_note(doc, method):
     if doc.supplier_delivery_note:
-        isDebitNote = False
+        posting_date = nowdate()
+        posting_time = nowtime()
         _purchase_invoice = frappe.db.get_value('Purchase Invoice', {'custom_linked_sales_invoice': doc.custom_linked_sales_invoice}, ['name'], as_dict=1) 
         if _purchase_invoice:
             purchase_invoice = frappe.get_doc("Purchase Invoice", _purchase_invoice.name)
             
+            transport_amount = frappe.get_all("Transport Setting", fields=["transport_amount"], limit=1)
+            
             d_items = []
+            d_p_items = []
+            c_c_note = []
+            
             for itm in doc.items:
                 if itm.custom_shortage and itm.custom_shortage > 0:
-                    isDebitNote = True
                     d_items.append(frappe._dict({
                         'item_code': itm.item_code,
                         'item_name': itm.item_name,
@@ -220,6 +227,99 @@ def create_d_note(doc, method):
                         'uom': itm.uom,
                         'stock_qty': -abs(itm.custom_shortage)
                     }))
+                    
+                    c_c_note.append(frappe._dict({
+                        'item_code': itm.item_code,
+                        'item_name': itm.item_name,
+                        'description': f"{itm.description}",
+                        'conversion_factor': 1,
+                        'qty': -abs(itm.custom_shortage),
+                        "rate": itm.rate,
+                        'uom': itm.uom,
+                    }))
+                    
+                    if itm.custom_chargeable_loss > 0:
+                        qty = (itm.custom_chargeable_loss / 1000)
+                        d_p_items.append(frappe._dict({
+                            'item_code': "TRANSPORT SERVICE",
+                            'item_name': "TRANSPORT SERVICE",
+                            'description': f"{itm.description}",
+                            'received_qty': -abs(qty),
+                            'conversion_factor': 1,
+                            'qty': -abs(qty),
+                            "rate": transport_amount[0].transport_amount,
+                            'uom': "Cubic Meter",
+                            'stock_qty': -abs(qty)
+                        }))
+                
+                    
+            
+            _s_p_invoice = frappe.db.get_value('Purchase Invoice', {'custom_delivery_note_number': doc.supplier_delivery_note}, ['name'], as_dict=1) 
+            if _s_p_invoice:
+                s_p_invoice = frappe.get_doc("Purchase Invoice", _s_p_invoice.name)
+                if s_p_invoice.docstatus == 1:
+                    if len(d_p_items) > 0:
+                        s_d_invoice = frappe.new_doc("Purchase Invoice")
+                        s_d_invoice.naming_series = "ACC-PINV-.YYYY.-"
+                        s_d_invoice.bill_no = s_p_invoice.bill_no
+                        s_d_invoice.bill_date = s_p_invoice.bill_date
+                        s_d_invoice.update_outstanding_for_self = 0
+                        s_d_invoice.is_return = 1
+                        s_d_invoice.return_against = s_p_invoice.name
+                        s_d_invoice.update_billed_amount_in_purchase_receipt = 1
+                        s_d_invoice.supplier = s_p_invoice.supplier
+                        s_d_invoice.posting_date = posting_date
+                        s_d_invoice.posting_time = posting_time
+                        s_d_invoice.set_posting_time = 1
+                        s_d_invoice.company = s_p_invoice.company
+                            
+                        s_d_invoice.set("items", d_p_items)
+                        s_d_invoice.flags.ignore_permissions = True
+                        s_d_invoice.set_missing_values()
+                        s_d_invoice.save(ignore_permissions=True)
+                    
+                   
+            if len(d_items) > 0: 
+                p_invoice = frappe.new_doc("Purchase Invoice")
+                p_invoice.naming_series = "ACC-PINV-.YYYY.-"
+                p_invoice.bill_no = purchase_invoice.bill_no
+                p_invoice.bill_date = purchase_invoice.bill_date
+                p_invoice.update_outstanding_for_self = 0
+                p_invoice.is_return = 1
+                p_invoice.return_against = purchase_invoice.name
+                p_invoice.update_billed_amount_in_purchase_receipt = 1
+                p_invoice.supplier = purchase_invoice.supplier
+                p_invoice.posting_date = posting_date
+                p_invoice.posting_time = posting_time
+                p_invoice.set_posting_time = 1
+                p_invoice.company = purchase_invoice.company
+                    
+                p_invoice.set("items", d_items)
+                p_invoice.flags.ignore_permissions = True
+                p_invoice.set_missing_values()
+                p_invoice.save(ignore_permissions=True)
+                
+                frappe.flags.ignore_account_permission = True
+                p_invoice.submit()
+                
+            if len(c_c_note) > 0:
+                sales_invoice = frappe.get_doc("Sales Invoice", doc.custom_linked_sales_invoice)
+                c_credit_note = frappe.new_doc("Sales Invoice")
+                c_credit_note.naming_series = "ACC-SINV-.YYYY.-"
+                c_credit_note.posting_date = posting_date
+                c_credit_note.posting_time = posting_time
+                c_credit_note.customer = sales_invoice.customer
+                c_credit_note.company = sales_invoice.company
+                c_credit_note.is_return = 1
+                c_credit_note.return_against = sales_invoice.name
+                c_credit_note.update_outstanding_for_self = 0
+                c_credit_note.update_billed_amount_in_delivery_note = 1
+                
+                c_credit_note.set("items", c_c_note)
+                c_credit_note.flags.ignore_permissions = True
+                c_credit_note.set_missing_values()
+                c_credit_note.save(ignore_permissions=True)
+                
                 
 @frappe.whitelist()
 def generate_delivery_note(**args):

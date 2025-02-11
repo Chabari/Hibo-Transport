@@ -171,7 +171,8 @@ fixtures = [
                     "Purchase Receipt Item-custom_chargeable_loss",
                     "Release Instruction-workflow_state",
                     "Delivery Note-custom_release_instruction",
-                    "Delivery Note Item-custom_loaded_qty"
+                    "Delivery Note Item-custom_loaded_qty",
+                    "Driver-custom_passport_number",
                 ),
             ]
         ],

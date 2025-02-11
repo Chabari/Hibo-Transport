@@ -74,7 +74,8 @@
    "fieldname": "linked_sales_order",
    "fieldtype": "Link",
    "label": "Linked Sales order",
-   "options": "Sales Order"
+   "options": "Sales Order",
+   "reqd": 1
   },
   {
    "fieldname": "offload_depot",
@@ -88,7 +89,8 @@
    "fieldname": "transporter",
    "fieldtype": "Link",
    "label": "Transporter",
-   "options": "Supplier"
+   "options": "Supplier",
+   "reqd": 1
   },
   {
    "fieldname": "truck_details_section",
@@ -132,7 +134,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-02-10 11:53:18.658510",
+ "modified": "2025-02-11 06:48:44.346735",
  "modified_by": "Administrator",
  "module": "Hibo Customizations",
  "name": "Release Instruction",
