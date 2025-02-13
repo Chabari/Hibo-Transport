@@ -173,6 +173,9 @@ fixtures = [
                     "Delivery Note-custom_release_instruction",
                     "Delivery Note Item-custom_loaded_qty",
                     "Driver-custom_passport_number",
+                    "Delivery Note-custom_driver_passport",
+                    "Delivery Note-custom_driver_licence",
+                    "Delivery Note-custom_release_note",
                 ),
             ]
         ],
