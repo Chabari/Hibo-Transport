@@ -333,7 +333,7 @@ def generate_delivery_note(**args):
             sales_order = frappe.get_doc("Sales Order", instruction.linked_sales_order)
         for itm in instruction.items:
             delivery_note = frappe.new_doc("Delivery Note")
-            delivery_note.custom_release_instruction = delivery_note.name
+            delivery_note.custom_release_instruction = instruction.name
             delivery_note.naming_series = "MAT-DN-.YYYY.-"
             delivery_note.posting_date = itm.release_date if itm.release_date else instruction.date
             delivery_note.posting_time = posting_time
