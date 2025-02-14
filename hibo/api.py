@@ -192,6 +192,7 @@ def create_c_i_invoice(doc, method):
         purchase_invoice.save(ignore_permissions=True)
         
         purchase_receipt.set("items", pr_items)
+        purchase_receipt.custom_linked_purchase_invoice = purchase_invoice.name
         purchase_receipt.flags.ignore_permissions = True
         purchase_receipt.set_missing_values()
         purchase_receipt.save(ignore_permissions=True)
@@ -251,9 +252,7 @@ def create_d_note(doc, method):
                             'uom': "Cubic Meter",
                             'stock_qty': -abs(qty)
                         }))
-                
-                    
-            
+                     
             _s_p_invoice = frappe.db.get_value('Purchase Invoice', {'custom_delivery_note_number': doc.supplier_delivery_note}, ['name'], as_dict=1) 
             if _s_p_invoice:
                 s_p_invoice = frappe.get_doc("Purchase Invoice", _s_p_invoice.name)
@@ -319,8 +318,17 @@ def create_d_note(doc, method):
                 c_credit_note.flags.ignore_permissions = True
                 c_credit_note.set_missing_values()
                 c_credit_note.save(ignore_permissions=True)
+            
                 
-                
+        frappe.db.commit() 
+        
+
+def on_submit(doc, method):
+    if doc.status == "To Bill":
+        pr = frappe.get_doc("Purchase Receipt", doc.name)
+        pr.update_status("Closed")
+        frappe.db.commit() 
+    
 @frappe.whitelist()
 def generate_delivery_note(**args):
     try:
@@ -369,6 +377,11 @@ def generate_delivery_note(**args):
             delivery_note.submit()
             
             sales_invoice = make_sales_invoice(delivery_note.name)
+            sales_invoice.custom_transporter = itm.transporter if itm.transporter else instruction.transporter
+            sales_invoice.custom_driver = itm.driver
+            sales_invoice.custom_vehicle = itm.truck_reg
+            sales_invoice.custom_trailer_no = itm.trailer_reg
+            sales_invoice.custom_release_instructions = instruction.name
             sales_invoice.flags.ignore_permissions = True
             frappe.flags.ignore_account_permission = True
             sales_invoice.set_missing_values()

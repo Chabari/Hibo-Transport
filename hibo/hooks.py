@@ -135,6 +135,9 @@ doc_events = {
     },
     "Purchase Receipt": {
         "before_submit": "hibo.api.create_d_note",
+    },
+    "Purchase Receipt": {
+        "on_submit": "hibo.api.on_submit",
     }
 }
 
@@ -176,6 +179,20 @@ fixtures = [
                     "Delivery Note-custom_driver_passport",
                     "Delivery Note-custom_driver_licence",
                     "Delivery Note-custom_release_note",
+                    "Sales Invoice-custom_transporter_info",
+                    "Sales Invoice-custom_transporter",
+                    "Sales Invoice-custom_column_break_txmn9",
+                    "Sales Invoice-custom_transporter_name",
+                    "Sales Invoice-custom_driver",
+                    "Sales Invoice-custom_driver_name",
+                    "Sales Invoice-custom_vehicle",
+                    "Sales Invoice-custom_vehicle_no",
+                    "Sales Invoice-custom_trailer_no",
+                    "Sales Invoice-custom_driver_licence",
+                    "Sales Invoice-custom_driver_passport",
+                    "Sales Invoice-custom_release_instructions",
+                    "Purchase Receipt-custom_linked_purchase_invoice"
+                    
                 ),
             ]
         ],
