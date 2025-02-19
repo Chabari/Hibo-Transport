@@ -135,10 +135,8 @@ doc_events = {
     },
     "Purchase Receipt": {
         "before_submit": "hibo.api.create_d_note",
-    },
-    "Purchase Receipt": {
         "on_submit": "hibo.api.on_submit",
-    }
+    },
 }
 
 

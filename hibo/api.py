@@ -200,7 +200,6 @@ def create_c_i_invoice(doc, method):
         frappe.flags.ignore_account_permission = True
         purchase_invoice.submit()
 
-
 def create_d_note(doc, method):
     if doc.supplier_delivery_note:
         posting_date = nowdate()
@@ -214,6 +213,7 @@ def create_d_note(doc, method):
             d_items = []
             d_p_items = []
             c_c_note = []
+            
             
             for itm in doc.items:
                 if itm.custom_shortage and itm.custom_shortage > 0:
@@ -321,6 +321,7 @@ def create_d_note(doc, method):
             
                 
         frappe.db.commit() 
+    
         
 
 def on_submit(doc, method):
